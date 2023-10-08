@@ -1,0 +1,2 @@
+# BossSeaDumping
+此项目基于selenium 利用谷歌浏览器进行对boss首页岗位的投递
