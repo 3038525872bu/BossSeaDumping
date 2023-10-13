@@ -6,7 +6,6 @@ import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.interactions.Actions
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -23,7 +22,6 @@ var sendNum = 0
  */
 fun main() {
     val options = ChromeOptions()
-    options.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
     val latch = CountDownLatch(1) // 创建一个计数器，初始值为1
     Log.info("开始打开浏览器")
     val chromeDriver = ChromeDriver(options)
@@ -60,33 +58,6 @@ fun main() {
         }
     }, "检测线程").start()
 
-    Thread({
-        // 模拟随机鼠标移动
-        val actions = Actions(chromeDriver)
-        val random = Random()
-
-        // 模拟随机的鼠标移动
-
-        // 模拟随机的鼠标移动
-        while (true) {
-            // 等待一段时间，模拟人类用户的停留行为
-            try {
-                delayDriver(random.nextInt(2000) + 1000L)
-            } catch (e: InterruptedException) {
-                e.printStackTrace()
-            }
-            if(!isResume.get()){
-                delayDriver(random.nextInt(2000) + 1000L)
-                continue
-            }
-            val xOffset: Int = random.nextInt(200) - 100 // 随机横向移动
-            val yOffset: Int = random.nextInt(200) - 100 // 随机纵向移动
-            actions.moveToElement(chromeDriver.findElement(By.tagName("body")), xOffset, yOffset).perform()
-
-
-        }
-    }, "鼠标模拟线程").start()
-
     workThread.start()
     latch.await()
 }
@@ -97,12 +68,25 @@ fun main() {
  */
 fun forSend(driver: WebDriver) {
     while (isResume.get()) {
-        val webElements = driver.findElement(By.className("job-list-box")).findElements(By.className("info-public"))
+        val webElements = driver.findElements(By.className("job-card-body"))
         if (sendNum >= webElements.size) {
             sendNum = 0
             return
         }
-        val send = webElements[sendNum]
+
+        // 判断是否沟通过悬浮
+        val actions = Actions(driver)
+        actions.moveToElement(webElements[sendNum]).perform()
+        delayDriver(400)
+        val text = webElements[sendNum].text
+        Log.info(webElements[sendNum].text)
+        if(text.contains("继续沟通")){
+            sendNum++
+            Log.info("跳过")
+            continue
+        }
+
+        val send = webElements[sendNum].findElement(By.className("job-info"))
         val url = driver.currentUrl
         // 进行投递
         send.click()
@@ -128,6 +112,7 @@ fun forSend(driver: WebDriver) {
  */
 fun startSend(driver: WebDriver) {
     try {
+        delayDriver(1500)
         forSend(driver)
         Log.info("进入下一页")
         if (!isResume.get()) {
