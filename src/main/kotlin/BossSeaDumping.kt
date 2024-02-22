@@ -80,7 +80,7 @@ fun forSend(driver: WebDriver) {
         delayDriver(400)
         val text = webElements[sendNum].text
         Log.info(webElements[sendNum].text)
-        if(text.contains("继续沟通")){
+        if (text.contains("继续沟通")) {
             sendNum++
             Log.info("跳过")
             continue
@@ -91,6 +91,18 @@ fun forSend(driver: WebDriver) {
         // 进行投递
         send.click()
         delayDriver(2000)
+        // 判断是否出现确定页面
+        try {
+            val footer = driver.findElement(By.className("greet-boss-footer"))
+            footer.findElement(By.className("cancel-btn")).click()
+            Log.info("进行下一个投递")
+            delayDriver(2000)
+            sendNum++
+            continue
+        } catch (e: Exception) {
+
+        }
+
         /*
          防止未能跳转到上一页
          这段代码若不暂停会页面不会跳回
@@ -114,6 +126,7 @@ fun startSend(driver: WebDriver) {
     try {
         delayDriver(1500)
         forSend(driver)
+
         Log.info("进入下一页")
         if (!isResume.get()) {
             return

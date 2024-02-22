@@ -21,7 +21,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.9")
     implementation("org.slf4j:slf4j-simple:2.0.9")
     // selenium
-    implementation("org.seleniumhq.selenium:selenium-java:4.14.0")
+    implementation("org.seleniumhq.selenium:selenium-java:4.17.0")
     implementation("org.seleniumhq.selenium:selenium-http-jdk-client:4.13.0")
 
 
